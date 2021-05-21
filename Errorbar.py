@@ -37,7 +37,7 @@ mpl_configs = {
     'axes.labelsize': 14,
     'xtick.labelsize': 13,
     'axes.titlesize': 28,
-    'axes.titleweight': 16,
+    'axes.titleweight': 'bold',
     'axes.titlepad':20
 }
 
