@@ -24,7 +24,8 @@ class Palette:
     调色盘.
     ===
     
-    Python>=3.9.0\n
+    Python>=3.9.0
+
     生成区分度较大的多种颜色
     """
 
@@ -37,13 +38,12 @@ class Palette:
         i = 0
         step = 360.0 / num
         while i < 360:
-            h = i
-            s = 90 + random.random() * 10
-            l = 50 + random.random() * 10
+            h = i # 色相（颜色）
+            l = 40 + random.random() * 10 # 亮度（0-1）
+            s = 90 + random.random() * 10 # 饱和度（0-1）
             _hlsc = (h / 360.0, l / 100.0, s / 100.0)
             hls_colors.append(_hlsc)
             i += step
-
         return hls_colors
 
     @staticmethod

@@ -43,7 +43,6 @@ mpl_configs = {
 
 matplotlib.rcParams.update(mpl_configs)
 
-
 def drawing_errorbar(labels: list[str], data: np.ndarray, error: np.ndarray, *args,
                      title=None, xlabel: str = 'x轴', ylabel: str = 'y轴', xticks: list[str] = None,
                      xgroup_sep: bool = False, legend_title: Union[str, None] = None, marker='s',
@@ -175,12 +174,14 @@ def data_parser(path: str) -> dict:
             # 自变量名
             sheet[row[0]] = row_data
             for i in range(1, len(row)):
-                dname = col_names[i][0:2]
-                layer = row_data.get(dname)
-                if not layer:
-                    row_data[dname] = []
+                # 过滤pandas.nan
+                if pd.notna(row[i]):
+                    dname = col_names[i][0:2]
                     layer = row_data.get(dname)
-                layer.append(row[i])
+                    if not layer:
+                        row_data[dname] = []
+                        layer = row_data.get(dname)
+                    layer.append(row[i])
     return dfs
 
 
@@ -210,14 +211,14 @@ def data_analyse(diagram: dict, standard: dict):
 
 
 if __name__ == '__main__':
-    datatables = data_parser(r'data.xlsx')
-    #
+    datatables = data_parser(r'C:\Users\SUPERSTATION\Desktop\data.xlsx')
+    # 标准dict
     stands = {'L1': 50.2, 'L2': 100.6, 'L3': 199.2}
     labels, data, error = data_analyse(datatables['Axial 1'], stands)
     a = np.array(data)
     b = np.array(error)
     drawing_errorbar(labels, a, b, markersize=6,
-                     title='Tiger! Tiger! Tiger!',
+                     title='Sample of Figure',
                      xlabel=r'Nominal design HA concentration ($\mathrm{mg/cm^3}$) of ESP',
                      ylabel='Mean deviation from the true HA concentration',
                      xgroup_sep=True, xticks=list(stands.keys()),
