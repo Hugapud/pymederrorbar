@@ -38,10 +38,11 @@ mpl_configs = {
     'xtick.labelsize': 13,
     'axes.titlesize': 28,
     'axes.titleweight': 'bold',
-    'axes.titlepad':20
+    'axes.titlepad': 20
 }
 
 matplotlib.rcParams.update(mpl_configs)
+
 
 def drawing_errorbar(labels: list[str], data: np.ndarray, error: np.ndarray, *args,
                      title=None, xlabel: str = 'x轴', ylabel: str = 'y轴', xticks: list[str] = None,
@@ -80,7 +81,7 @@ def drawing_errorbar(labels: list[str], data: np.ndarray, error: np.ndarray, *ar
         数据点大小
     dfactor_x : float
         x轴数据坐标缩放比例(default 0.1)
-    interval : int 
+    interval : int
         每聚类末尾留出的padding栏数量，默认为2
     clrs : color array-like
         指定数据类别的图形着色(default None,随机着色)，颜色代码接受map-name或HTML-like，详见matplotlib
@@ -93,13 +94,19 @@ def drawing_errorbar(labels: list[str], data: np.ndarray, error: np.ndarray, *ar
 
     # 调色选项
     if not clrs or len(clrs) != n_cata:
-        clrs = Palette.HTML_colors(n_cata)
+        # clrs = Palette.HTML_colors(n_cata)
+        clrs = ['#66CDAA', '#00FA9A', '#FA8072', '#9370DB', '#FF4500',
+                '#1E90FF', '#3CB371', '#FFA500', '#C71585', '#DC143C']
 
     # 设置坐标轴的绘图属性
-    ax = plt.axes()
+    ax: plt.Axes = plt.axes()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['bottom'].set_position(('data', 0))  # 这里固定了x轴的位置，因此x轴不会随拖动变化
+    # ax.invert_yaxis()  # 翻转y轴
+    # 设置x刻度标签到顶部
+    ax.xaxis.tick_top()
+    ax.xaxis.set_label_position('top')
     # 配置x轴
     plt.xlabel(xlabel)
     if not xticks:
@@ -133,7 +140,7 @@ def drawing_errorbar(labels: list[str], data: np.ndarray, error: np.ndarray, *ar
         cat = plt.errorbar(x, dat, yerr=err, fmt=' ', marker=marker, markersize=markersize, color=clr,
                            capsize=capsize)
         cats.append(cat)
-    plt.legend(handles=cats, labels=labels,
+    plt.legend(loc='lower right', handles=cats, labels=labels,
                title=legend_title, mode=None,
                ncol=legend_ncol, title_fontsize='x-large',
                columnspacing=0.5)
@@ -204,22 +211,21 @@ def data_analyse(diagram: dict, standard: dict):
         for bone, darray in row_data.items():
             stan = standard[bone]
             # 测量平均值的偏差
-            avg_errors.append((stan-stats.mean(darray))/stan)
+            avg_errors.append((stats.mean(darray)-stan)/stan)
             # 测量偏差的样本标准差
             error_sds.append(stats.stdev(map(lambda x: (stan-x)/stan, darray)))
     return labels, BMD_avg_errors, BMD_error_sds
 
 
 if __name__ == '__main__':
-    datatables = data_parser(r'C:\Users\SUPERSTATION\Desktop\data.xlsx')
+    datatables = data_parser(r'E:\Source\Python\pymederrorbar\data.xlsx')
     # 标准dict
     stands = {'L1': 50.2, 'L2': 100.6, 'L3': 199.2}
-    labels, data, error = data_analyse(datatables['Axial 1'], stands)
+    labels, data, error = data_analyse(datatables['Axial-5mm-30'], stands)
     a = np.array(data)
     b = np.array(error)
-    drawing_errorbar(labels, a, b, markersize=6,
-                     title='Sample of Figure',
-                     xlabel=r'Nominal design HA concentration ($\mathrm{mg/cm^3}$) of ESP',
-                     ylabel='Mean deviation from the true HA concentration',
-                     xgroup_sep=True, xticks=list(stands.keys()),
-                     legend_title=r'$\bf{Scans}$ $\bf{Protocol}$', legend_ncol=2)
+    drawing_errorbar(labels, a, b, markersize=3,
+                     xlabel=r'Nominal HA concentration ($\mathrm{mg/cm^3}$)',
+                     ylabel='Mean deviation of the true HA concentration',
+                     xgroup_sep=True, xticks=list(['L1 50.2', 'L2 100.6', 'L3 199.2']),
+                     legend_ncol=1)
